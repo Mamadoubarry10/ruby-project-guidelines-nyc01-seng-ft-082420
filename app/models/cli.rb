@@ -28,23 +28,27 @@ class CLI
 
     def main_menu
         prompt = TTY::Prompt.new
-        user_choice = prompt.select("What would you like to do", ["See events in your area", "Different area", "Manage Booking", "Account Setting"])
+        user_choice = prompt.select("What would you like to do", ["See Events In Your Area", "Different Area", "Manage Bookings", "Account Settings"])
         
-        if user_choice == "See events in your area"
+        if user_choice == "See Events In Your Area"
             events = Event.where(city: @@user[:city])
             event_names = events.map {|event| event[:name]}
             event_selection = prompt.select("Here are the events in your area, click for additional information", event_names)
             event_detail = Event.where(name: event_selection)
-            # binding.pry
+
             puts "Your event, #{event_detail[0][:name]}, will be held at #{event_detail[0][:venue]} on #{event_detail[0][:date]}"
             sleep(3)
             book_ticket = prompt.yes?("Tickets are currently $#{event_detail[0][:price]}. Would you like to purchase?")
-            if book_ticket
+            if book_ticket && Booking.find_by(user:@@user, event:event_detail[0])
+                puts "Looks like you already bought tickets"
+            elsif book_ticket
                 Booking.create(user:@@user, event:event_detail[0])
-            else 
-                puts "are you sure"
+                puts "Have fun"
+            else
+                puts "Are you sure?"
             end
-        elsif user_choice == "Different area"
+
+        elsif user_choice == "Different Area"
             new_city = prompt.ask("What city are you looking for?")
             events = Event.where(city: new_city)
             event_names = events.map {|event| event[:name]}
@@ -53,79 +57,74 @@ class CLI
             # binding.pry
             puts "Your event, #{event_detail[0][:name]}, will be held at #{event_detail[0][:venue]} on #{event_detail[0][:date]}"
             sleep(3)
+            
             book_ticket = prompt.yes?("Tickets are currently $#{event_detail[0][:price]}. Would you like to purchase?")
-            if book_ticket
+            if book_ticket && Booking.find_by(user:@@user, event:event_detail[0])
+                puts "Looks like you already bought tickets"
+            elsif book_ticket
                 Booking.create(user:@@user, event:event_detail[0])
-            else 
-                puts "are you sure"
+                puts "Have fun"
+            else
+                puts "Are you sure?"
             end
 
+        elsif user_choice == "Manage Bookings"
             
+            bookings_array = @@user.bookings
             
-            # binding.pry
-            ## return the event object based on event_selection... venue, date, price... last option book tickets -- if you book tickets (booking.create)
+            booking_names = 
+                bookings_array.map do |event|
+                    Event.find(event[:event_id])[:name]
+                end
+                
+                puts "Here are you current bookings"
+                destroy_booking = prompt.select("Would you like to sell your tickets? Select the event below", booking_names) 
+                event_id = Event.find_by(name: destroy_booking)[:id]
+                Booking.find_by(user: @@user, event: event_id).destroy
+                sleep(3)
+                puts "Your tickets have been sold!"
+
+        else 
+            
+            user_choice = prompt.select("Account Settings", ["Change my password", "Delete my account"])
+            
+            if user_choice == "Change my password"
+                new_pw = prompt.mask("What would you like your new password to be?")
+                user = User.find(@@user[:id])
+                user.update(password: new_pw)
+                sleep(3)
+                puts "Password updated."
+            
+            else
+                user = User.find(@@user[:id])
+                user.destroy
+                sleep(3)
+                puts "Account deleted"
+            end
+
+
         end
+
+        # have something that returns you to a selection screen
     end
 
-    
+end
 
 
-    # Main menu
-        ## Do you want to see events in your area #{city from their user table}?
-            ## Grab all events from (ticketmaster or our seed data to start) in that city
-                ## Display all event information from event.rb (Event.all) and prompt user to select an event for more information on how to book?
-                    ## Tickets are x_price, are you sure you'd like to purchase? y/n
-                    ## if yes, Booking.create a new booking for that user_id and event_id
-                    ## if no, return back to events page in your area
 
-        
-        
-                # prompt.select("Do you have an account with us?", ["Sign up", "Login", "Change PW"])
-
-
-    ## Do you have an account with us already?
-        ##TTY to ask yes/no questions
 
 
     ## If yes, prompt user to login with their login
         ## if login, matches prompt user for PW
             ## another TTY to hide your passwords .mask
             ## if PW is good, you're logged in and drop you in the main_menu
-            ## if not, try again
-
-    ## if no, prompt user to start creating an account
-        ## will need user_name, password, and your home city
-        ## gather all those inputs and create a new User with User.create
-        ## after account is setup, main_menu pops up
+            ## if not, try again --- this fails if we type it in twice???
 
 
-    ## Main menu
-        ## Do you want to see events in your area #{city from their user table}?
-            ## Grab all events from (ticketmaster or our seed data to start) in that city
-                ## Display all event information from event.rb (Event.all) and prompt user to select an event for more information on how to book?
-                    ## Tickets are x_price, are you sure you'd like to purchase? y/n
-                    ## if yes, Booking.create a new booking for that user_id and event_id
-                    ## if no, return back to events page in your area
-    
 
-        ## Do you want to see events somewhere else?
-            ## prompt.ask to ask user what city they're looking for (if no results found, prompt them again to try somewhere else)
-                ## Grab all events from (ticketmaster or our seed data to start) in that city
-                ## Display all event information from event.rb (Event.all) and prompt user to select an event for more information on how to book?
-                    ## Tickets are x_price, are you sure you'd like to purchase? y/n
-                    ## if yes, Booking.create a new booking for that user_id and event_id
-                    ## if no, return back to events page in your area
 
         ## See what events I'm currently going to?
             ## List all events in a dropdown, after user selects an event
                 ## See how much I paid?
                 ## Do you want to sell your tickets? y/n
 
-        ## Account settings
-            ## Delete my account
-            ## Change my PW
-            ## return to main menu
-
-
-
-end
