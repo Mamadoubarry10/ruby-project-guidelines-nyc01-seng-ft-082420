@@ -1,5 +1,5 @@
 # Module One Final Project Guidelines
-AB_test
+
 Congratulations, you're at the end of module one! You've worked crazy hard to get here and have learned a ton.
 
 For your final project, we'll be building a Command Line database application.
