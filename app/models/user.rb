@@ -22,7 +22,10 @@ class User < ActiveRecord::Base
         else 
             puts "We couldn't find your account, please try again"
             name = prompt.ask("What is your user name?")
-            if User.find(user_name: name)
+            if User.find_by(user_name: name)
+                pw = prompt.mask("What is your password?")
+            else ## THIS NEEDS SOME WORK
+                name = prompt.ask("What is your user name?")
                 pw = prompt.mask("What is your password?")
             end
         end
