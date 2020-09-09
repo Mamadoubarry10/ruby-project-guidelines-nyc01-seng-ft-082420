@@ -1,30 +1,27 @@
 
 require 'tty-prompt'
-# require 'pry'
+require 'pry'
 
 class CLI
 
     ## Opens up with some image or prints our app name
         ## Welcome to EventFinder
 
-    
+
     def start
         puts "Welcome to EventFinder (working title)"
         puts "Company LOGO"
-    
+            
             prompt = TTY::Prompt.new
             existing_account = prompt.yes?("Do you have an account with us?") 
                 if existing_account
-                    User.login
-                else new_user = prompt.ask("What is your name?")
+                    @@user = User.login
+                else 
+                    new_user = prompt.ask("What is your name?")
                     new_pw = prompt.ask("What is your password?")
                     new_city = prompt.ask("What is your city?")
-
-                    User.create(user_name: new_user, password: new_pw, city: new_city)
-
+                    @@user = User.create(user_name: new_user, password: new_pw, city: new_city)
                     puts "Welcome, #{new_user}"
-
-                    
                 end
                 main_menu
     end
@@ -32,10 +29,13 @@ class CLI
     def main_menu
         prompt = TTY::Prompt.new
         user_choice = prompt.select("What would you like to do", ["See events in your area", "Different area", "Manage Booking", "Account Setting"])
- 
-         if user_choice == "See events in your area"
-             Event.all
-         end
+        
+        if user_choice == "See events in your area"
+            events = Event.where(:city == @@user[:city])
+            event_names = events.map {|event| event[:name]}
+            event_selection = prompt.select("Here are the events in your area, click for additional information", event_names)
+            ## return the event object based on event_selection... venue, date, price... last option book tickets -- if you book tickets (booking.create)
+        end
     end
 
     

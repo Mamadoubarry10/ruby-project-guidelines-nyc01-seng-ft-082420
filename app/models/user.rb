@@ -9,7 +9,6 @@ class User < ActiveRecord::Base
 
     def self.login
         prompt = TTY::Prompt.new
-
         name = prompt.ask("Welcome back, what is your user name?")
         user = User.find_by(user_name: name)
         if user
@@ -27,16 +26,17 @@ class User < ActiveRecord::Base
                 pw = prompt.mask("What is your password?")
             end
         end
+        user = User.find_by(user_name: name)
     end
 
- 
+
     def main_menu
         
             user_choice = prompt.select("What would you like to do", ["See events in your area", "Different area", "Manage Booking", "Account Setting"])
-     
-             if user_choice == "See events in your area"
-                 user
-             end
+    
+            if user_choice == "See events in your area"
+                user
+            end
     end
 
 end
