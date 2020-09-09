@@ -6,6 +6,8 @@ class CLI
 
     ## Opens up with some image or prints our app name
         ## Welcome to EventFinder
+
+    
     def start
         puts "Welcome to EventFinder (working title)"
         puts "Company LOGO"
@@ -14,16 +16,42 @@ class CLI
             existing_account = prompt.yes?("Do you have an account with us?") 
                 if existing_account
                     User.login
-                else
-                    puts "Shouldn't see this"
+                else new_user = prompt.ask("What is your name?")
+                    new_pw = prompt.ask("What is your password?")
+                    new_city = prompt.ask("What is your city?")
+
+                    User.create(user_name: new_user, password: new_pw, city: new_city)
+
+                    puts "Welcome, #{new_user}"
+
+                    
                 end
+                main_menu
     end
 
     def main_menu
-
+        prompt = TTY::Prompt.new
+        user_choice = prompt.select("What would you like to do", ["See events in your area", "Different area", "Manage Booking", "Account Setting"])
+ 
+         if user_choice == "See events in your area"
+             Event.all
+         end
     end
 
-        # prompt.select("Do you have an account with us?", ["Sign up", "Login", "Change PW"])
+    
+
+
+    # Main menu
+        ## Do you want to see events in your area #{city from their user table}?
+            ## Grab all events from (ticketmaster or our seed data to start) in that city
+                ## Display all event information from event.rb (Event.all) and prompt user to select an event for more information on how to book?
+                    ## Tickets are x_price, are you sure you'd like to purchase? y/n
+                    ## if yes, Booking.create a new booking for that user_id and event_id
+                    ## if no, return back to events page in your area
+
+        
+        
+                # prompt.select("Do you have an account with us?", ["Sign up", "Login", "Change PW"])
 
 
     ## Do you have an account with us already?

@@ -29,4 +29,14 @@ class User < ActiveRecord::Base
         end
     end
 
+ 
+    def main_menu
+        
+            user_choice = prompt.select("What would you like to do", ["See events in your area", "Different area", "Manage Booking", "Account Setting"])
+     
+             if user_choice == "See events in your area"
+                 user
+             end
+    end
+
 end
