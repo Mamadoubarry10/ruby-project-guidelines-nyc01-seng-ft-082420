@@ -31,9 +31,38 @@ class CLI
         user_choice = prompt.select("What would you like to do", ["See events in your area", "Different area", "Manage Booking", "Account Setting"])
         
         if user_choice == "See events in your area"
-            events = Event.where(:city == @@user[:city])
+            events = Event.where(city: @@user[:city])
             event_names = events.map {|event| event[:name]}
             event_selection = prompt.select("Here are the events in your area, click for additional information", event_names)
+            event_detail = Event.where(name: event_selection)
+            # binding.pry
+            puts "Your event, #{event_detail[0][:name]}, will be held at #{event_detail[0][:venue]} on #{event_detail[0][:date]}"
+            sleep(3)
+            book_ticket = prompt.yes?("Tickets are currently $#{event_detail[0][:price]}. Would you like to purchase?")
+            if book_ticket
+                Booking.create(user:@@user, event:event_detail[0])
+            else 
+                puts "are you sure"
+            end
+        elsif user_choice == "Different area"
+            new_city = prompt.ask("What city are you looking for?")
+            events = Event.where(city: new_city)
+            event_names = events.map {|event| event[:name]}
+            event_selection = prompt.select("Here are the events in your area, click for additional information", event_names)
+            event_detail = Event.where(name: event_selection)
+            # binding.pry
+            puts "Your event, #{event_detail[0][:name]}, will be held at #{event_detail[0][:venue]} on #{event_detail[0][:date]}"
+            sleep(3)
+            book_ticket = prompt.yes?("Tickets are currently $#{event_detail[0][:price]}. Would you like to purchase?")
+            if book_ticket
+                Booking.create(user:@@user, event:event_detail[0])
+            else 
+                puts "are you sure"
+            end
+
+            
+            
+            # binding.pry
             ## return the event object based on event_selection... venue, date, price... last option book tickets -- if you book tickets (booking.create)
         end
     end
