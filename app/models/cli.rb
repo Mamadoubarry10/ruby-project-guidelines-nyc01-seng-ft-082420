@@ -36,9 +36,9 @@ class CLI
                 main_menu
     end
 
-    def bookings
-        @@user.bookings
-    end
+    # def bookings
+    #     @@user.bookings
+    # end
 
     def main_menu
         # notice = Pastel.new.cyan.on_white.detach
@@ -49,8 +49,39 @@ class CLI
         
         if navigation == "See Events In Your Area"
             system "clear"
+            
+            events_in_your_area(@@user)
+        elsif 
+            navigation == "Different Area"
+            system "clear"
+            new_city = prompt.select("What city are you looking for?", ["New York", "Los Angeles", "Chicago", "Miami", "Las Vegas", "Go Back"])
+            different_area_events(@@user, new_city)
+        elsif 
+            navigation == "Manage Bookings"
+            system "clear"
 
-            events = Event.where(city: @@user[:city])
+            manage_bookings(@@user)
+
+        elsif
+            navigation == "Account Settings"
+            system "clear"
+            account_setting(@@user)
+
+        else navigation == "Exit"
+            exit
+        end
+
+        sleep(3)
+        system "clear"
+        main_menu
+    end
+end
+
+
+def events_in_your_area(current_user)
+    prompt = TTY::Prompt.new(active_color: :cyan)
+    
+    events = Event.where(city: current_user[:city])
             event_names = events.map {|event| event[:name]}
             event_selection = prompt.select("Here are the events in your area, click for additional information", [event_names, "Go Back"])
             event_detail = Event.where(name: event_selection)
@@ -61,24 +92,24 @@ class CLI
                 puts "#{event_detail[0][:name]} will be held at #{event_detail[0][:venue]} on #{event_detail[0][:date]}"
                 sleep(3)
                 book_ticket = prompt.yes?("Tickets are currently $#{event_detail[0][:price]}. Would you like to purchase?")
-                if book_ticket && Booking.find_by(user:@@user, event:event_detail[0])
+                if book_ticket && Booking.find_by(user:current_user, event:event_detail[0])
                     puts "Looks like you already bought tickets"
                 elsif book_ticket
-                    Booking.create(user:@@user, event:event_detail[0])
+                    Booking.create(user:current_user, event:event_detail[0])
                     puts "Thank for your purchase. Have fun!"
                 else
                     puts "Bummer"
                 end
             end
-        elsif 
-            navigation == "Different Area"
-            system "clear"
-            new_city = prompt.select("What city are you looking for?", ["New York", "Los Angeles", "Chicago", "Miami", "Las Vegas", "Go Back"])
-            if new_city == "Go Back"
+end
+
+def different_area_events(current_user, city_selection)
+    prompt = TTY::Prompt.new(active_color: :cyan)
+    if city_selection == "Go Back"
                 system "clear"
                 main_menu
             end
-            events = Event.where(city: new_city)
+            events = Event.where(city: city_selection)
             event_names = events.map {|event| event[:name]}
             event_selection = prompt.select("Here are the events in your area, click for additional information", [event_names, "Go Back"])
             if event_selection == "Go Back"
@@ -91,59 +122,61 @@ class CLI
                 sleep(3)
                 
                 book_ticket = prompt.yes?("Tickets are currently $#{event_detail[0][:price]}. Would you like to purchase?")
-                if book_ticket && Booking.find_by(user:@@user, event:event_detail[0])
+                if book_ticket && Booking.find_by(user:current_user, event:event_detail[0])
                     puts "Looks like you already bought tickets"
                 elsif book_ticket
-                    Booking.create(user:@@user, event:event_detail[0])
+                    Booking.create(user:current_user, event:event_detail[0])
                     puts "Thank for your purchase. Have fun!"
+                    
                 else
                     puts "Bummer"
                 end
             end
 
-        elsif 
-            navigation == "Manage Bookings"
-            system "clear"
+end
 
-            bookings_array = @@user.bookings
+def manage_bookings(current_user)
+    prompt = TTY::Prompt.new(active_color: :cyan)
+    display_names = current_user.events.map do |event|
+        event[:name]
+    end
+        
+    puts "Here are you current bookings"
+    selection = prompt.select("Would you like to sell your tickets? Select the event below", [display_names, "Go Back"]) 
+    
+    if selection == "Go Back"
+        system "clear"
+        main_menu
+    else
+        event_id = Event.find_by(name: selection)[:id]
+        
+        Booking.find_by(user: current_user, event: event_id).destroy
+        
+        # binding.pry
+        sleep(3)
+        puts "Your tickets have been sold!"
+        sleep(1)
+        # bookings_array = @@user.bookings
+        system "clear"
+        main_menu
+    end
+end
 
-            booking_names = 
-                bookings_array.map do |event|
-                    Event.find(event[:event_id])[:name]
-                end
-                
-            puts "Here are you current bookings"
-            selection = prompt.select("Would you like to sell your tickets? Select the event below", [booking_names, "Go Back"]) 
-            
-            if selection == "Go Back"
-                system "clear"
-                main_menu
-            else
-                event_id = Event.find_by(name: selection)[:id]
-                Booking.find_by(user: @@user, event: event_id).destroy
-                sleep(3)
-                puts "Your tickets have been sold!"
-                bookings_array = @@user.bookings
-                system "clear"
-            end
-
-        elsif
-            navigation == "Account Settings"
-            system "clear"
-
-            selection = prompt.select("Account Settings", ["Change my password", "Delete my account", "Go Back"])
+def account_setting(current_user)
+    prompt = TTY::Prompt.new(active_color: :cyan)
+    selection = prompt.select("Account Settings", ["Change my password", "Delete my account", "Go Back"])
             
             if selection == "Change my password"
                 system "clear"
                 new_pw = prompt.mask("What would you like your new password to be?")
-                user = User.find(@@user[:id])
+                user = User.find(current_user[:id])
                 user.update(password: new_pw)
                 sleep(3)
                 puts "Password updated."
             
             elsif selection == "Delete my account"
                 system "clear"
-                user = User.find(@@user[:id])
+                user = User.find(current_user[:id])
                 user.destroy
                 sleep(3)
                 puts "Account deleted"
@@ -152,13 +185,4 @@ class CLI
                 system "clear"
                 main_menu
             end
-
-        else navigation == "Exit"
-            exit
-        end
-
-        sleep(3)
-        system "clear"
-        main_menu
-    end
 end
