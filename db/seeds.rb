@@ -46,15 +46,15 @@ city_list = ["Los Angeles", "New York", "Chicago", "Las Vegas", "Miami"]
 end
 
 5.times do
-    Event.create(name: Faker::Music.band, venue: Faker::WorldCup.stadium, date: Faker::Date.in_date_period, price: Faker::Commerce.price, event_type: "Concert", city: city_list.sample)
+    Event.create(name: Faker::Music.band, venue: Faker::WorldCup.stadium, date: Faker::Date.in_date_period(year: 2021), price: Faker::Commerce.price, event_type: "Concert", city: city_list.sample)
 end
 
 5.times do
-    Event.create(name: Faker::Sports::Basketball.team, venue: Faker::WorldCup.stadium, date: Faker::Date.in_date_period, price: Faker::Commerce.price, event_type: "Sporting Event", city: city_list.sample)
+    Event.create(name: Faker::Sports::Basketball.team, venue: Faker::WorldCup.stadium, date: Faker::Date.in_date_period(year: 2021), price: Faker::Commerce.price, event_type: "Sporting Event", city: city_list.sample)
 end
 
 5.times do
-    Event.create(name: Faker::Movie.title, venue: Faker::WorldCup.stadium, date: Faker::Date.in_date_period, price: Faker::Commerce.price, event_type: "Movie", city: city_list.sample)
+    Event.create(name: Faker::Movie.title, venue: Faker::WorldCup.stadium, date: Faker::Date.in_date_period(year: 2021), price: Faker::Commerce.price, event_type: "Movie", city: city_list.sample)
 end
 
 
