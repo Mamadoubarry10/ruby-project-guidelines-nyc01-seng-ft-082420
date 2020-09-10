@@ -10,9 +10,6 @@ require 'artii'
 
 class CLI
 
-    ## Opens up with some image or prints our app name
-        ## Welcome to EventFinder
-
     def start
         a = Artii::Base.new :font => 'slant'
         puts a.asciify("EVENTFINDER")
@@ -128,7 +125,10 @@ class CLI
     
     def manage_bookings(current_user)
         prompt = TTY::Prompt.new(active_color: :cyan)
-        selection = prompt.select("Which event would you like to sell your tickets?", [current_user.bookings.map {|event| Event.find(event[:event_id])[:name]}, "Go Back"]) 
+        
+        events = User.find(current_user[:id]).events.map {|event| event[:name]} 
+            
+        selection = prompt.select("Which event would you like to sell your tickets?", [events, "Go Back"]) 
         if selection == "Go Back"
             system "clear"
             main_menu
@@ -150,7 +150,11 @@ class CLI
     def view_bookings(current_user)
         prompt = TTY::Prompt.new(active_color: :cyan)
         puts "Here are you current bookings:"
-        puts current_user.bookings.map {|event| Event.find(event[:event_id])[:name]}
+
+        events = User.find(current_user[:id]).events.map {|event| event[:name]} 
+        puts events
+
+        # puts current_user.bookings.map {|event| Event.find(event[:event_id])[:name]}
         go_back = prompt.select("Would you like to return to the main menu?",["Go Back"])
         if go_back
             system "clear"
