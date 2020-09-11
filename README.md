@@ -22,7 +22,7 @@ EventFinder app will prompt you to either log in or create an account
   ### See Events In Your Area
       Shows you events happening in your city
       After selecting an event you will be given additional information and the option to purchase a ticket
-  ### Different Area
+  ### See Events in a Different Area
       Prompts you to select the city you're looking for and shows you events happening in the selected city
       After selecting an event you will be given additional information and the option to purchase a ticket
   ### View Bookings

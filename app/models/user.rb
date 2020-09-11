@@ -8,7 +8,7 @@ class User < ActiveRecord::Base
 
 
     def self.login
-        prompt = TTY::Prompt.new
+        prompt = TTY::Prompt.new(active_color: :cyan)
         name = prompt.ask("Welcome back, what is your user name?")
         user = User.find_by(user_name: name)
         if user
